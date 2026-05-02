@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Parfumista — Fragancias Selectas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #B8975A;
+      --gold-light: #E8D5A3;
+      --gold-dark: #7A5F2E;
+      --ink: #1A1714;
+      --muted: #7A6E63;
+      --surface: #FAF7F2;
+      --surface-2: #F3EEE6;
+      --border: rgba(184,151,90,0.22);
+      --border-strong: rgba(184,151,90,0.45);
+    }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 3.5rem 1rem 2.5rem;
+      border-bottom: 0.5px solid var(--border-strong);
+      background: #fff;
+    }
+    .hero-ornament {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 7vw, 54px);
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.05;
+      margin-bottom: 0.4rem;
+    }
+    .hero-sub {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+    .hero-line { width: 36px; height: 0.5px; background: var(--gold); margin: 1.2rem auto 0; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+    /* ── MODO TOGGLE ── */
+    .mode-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-bottom: 2rem; }
+    .mode-toggle {
+      display: flex;
+      border: 0.5px solid var(--border-strong);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .mode-btn {
+      padding: 8px 32px;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 400;
+      font-family: 'Jost', sans-serif;
+      cursor: pointer;
+      border: none;
+      background: #fff;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .mode-btn.active { background: var(--gold); color: #fff; }
+    .mode-btn:first-child { border-right: 0.5px solid var(--border-strong); }
+    .mode-info { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border-strong); }
+
+    /* ── FILTROS ── */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 1.25rem;
+    }
+    .filter-btn {
+      padding: 4px 14px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: 'Jost', sans-serif;
+      border: 0.5px solid var(--border-strong);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 1px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--gold); color: var(--gold-dark); }
+    .filter-btn.active { background: var(--ink); color: var(--gold-light); border-color: var(--ink); }
+
+    /* ── PRODUCTOS ── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 14px;
+      margin-bottom: 2.5rem;
+    }
+    .product-card {
+      background: #fff;
+      border: 0.5px solid var(--border);
+      border-radius: 2px;
+      padding: 1.1rem 1rem 1rem;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+      position: relative;
+    }
+    .product-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .product-card.selected { border-color: var(--gold); border-width: 1px; background: #FFFDF9; }
+    .product-card.hidden { display: none; }
+
+    .product-icon { font-size: 28px; margin-bottom: 0.55rem; display: block; }
+    .product-family { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.3rem; }
+    .product-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 0.25rem; line-height: 1.2; }
+    .product-desc { font-size: 11px; color: var(--muted); margin-bottom: 0.75rem; line-height: 1.5; font-weight: 300; }
+    .product-size { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+    .product-price { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--gold-dark); }
+    .product-price-ref { font-size: 10px; color: var(--muted); text-decoration: line-through; margin-bottom: 0.1rem; }
+    .min-badge {
+      position: absolute; top: 8px; right: 8px;
+      font-size: 9px; letter-spacing: 0.06em;
+      background: #F5EDD5; color: var(--gold-dark);
+      padding: 2px 7px; border-radius: 1px;
+    }
+    .add-btn {
+      margin-top: 0.75rem; width: 100%; padding: 6px;
+      font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase;
+      font-family: 'Jost', sans-serif;
+      border: 0.5px solid var(--gold); background: transparent;
+      color: var(--gold-dark); border-radius: 1px; cursor: pointer; transition: all 0.15s;
+    }
+    .add-btn:hover { background: var(--gold-light); }
+    .add-btn.added { background: var(--gold); color: #fff; border-color: var(--gold); }
+
+    /* ── CARRITO ── */
+    .cart-box {
+      background: var(--surface-2);
+      border: 0.5px solid var(--border-strong);
+      border-radius: 2px;
+      padding: 1.1rem 1.3rem;
+      margin-bottom: 2rem;
+    }
+    .cart-empty { font-size: 12px; color: var(--muted); text-align: center; padding: 0.9rem 0; letter-spacing: 0.07em; }
+    .cart-item {
+      display: flex; align-items: center; padding: 8px 0;
+      border-bottom: 0.5px solid var(--border); gap: 8px;
+    }
+    .cart-item:last-of-type { border-bottom: none; }
+    .cart-item-name { flex: 1; font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--ink); }
+    .cart-qty { display: flex; align-items: center; gap: 6px; }
+    .qty-btn {
+      width: 20px; height: 20px;
+      border: 0.5px solid var(--border-strong); background: #fff;
+      border-radius: 1px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; color: var(--muted);
+      transition: background 0.15s;
+    }
+    .qty-btn:hover { background: var(--gold-light); }
+    .qty-num { font-size: 13px; min-width: 18px; text-align: center; color: var(--ink); }
+    .cart-item-price { min-width: 90px; text-align: right; font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--gold-dark); }
+    .remove-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0 2px; transition: color 0.15s; }
+    .remove-btn:hover { color: #c0392b; }
+    .cart-total {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border-strong);
+    }
+    .cart-total-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+    .cart-total-price { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--gold-dark); }
+
+    /* ── FORMULARIO ── */
+    .form-box {
+      background: #fff;
+      border: 0.5px solid var(--border-strong);
+      border-radius: 2px;
+      padding: 1.3rem;
+    }
+    .emailjs-config {
+      background: #F5EDD5; border: 0.5px solid #D4B47A; border-radius: 2px;
+      padding: 0.9rem 1rem; margin-bottom: 1rem;
+      font-size: 11px; color: var(--gold-dark); line-height: 1.7;
+    }
+    .emailjs-config strong { font-weight: 500; display: block; margin-bottom: 3px; }
+    .emailjs-config a { color: var(--gold-dark); }
+    .ejs-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .ejs-grid label { font-size: 10px; display: block; margin-bottom: 3px; }
+    .ejs-input {
+      width: 100%; font-size: 11px; padding: 5px 8px;
+      border: 0.5px solid #D4B47A; border-radius: 1px;
+      background: #fff; color: var(--ink); font-family: 'Jost', sans-serif;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 0.6rem; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-label { font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      font-size: 13px; padding: 9px 11px;
+      border: 0.5px solid var(--border-strong); border-radius: 1px;
+      background: var(--surface); color: var(--ink);
+      font-family: 'Jost', sans-serif; font-weight: 300; outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--gold); }
+    .form-group textarea { resize: vertical; min-height: 70px; }
+
+    .submit-btn {
+      width: 100%; padding: 13px;
+      background: var(--ink); color: var(--gold-light);
+      border: none; border-radius: 1px;
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      font-family: 'Jost', sans-serif; cursor: pointer;
+      margin-top: 1rem; transition: background 0.2s;
+    }
+    .submit-btn:hover { background: #2E2A25; }
+    .submit-btn:disabled { background: #ccc; color: #888; cursor: not-allowed; }
+
+    .status-msg {
+      display: none; border-radius: 1px;
+      padding: 0.8rem 1rem; font-size: 12px;
+      margin-top: 0.8rem; text-align: center; letter-spacing: 0.05em;
+    }
+    .status-ok { background: #EAF3DE; color: #3B6D11; }
+    .status-err { background: #FCEBEB; color: #791F1F; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-top: 0.5px solid var(--border);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 540px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .ejs-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-ornament">✦ Maison de Parfums ✦</div>
+    <h1>Le Parfumista</h1>
+    <p class="hero-sub">Fragancias selectas · Argentina</p>
+    <div class="hero-line"></div>
+  </header>
+
+  <main class="container">
+
+    <!-- Modo precio -->
+    <div class="mode-wrap">
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-minorista" onclick="setMode('minorista')">Minorista</button>
+        <button class="mode-btn" id="btn-mayorista" onclick="setMode('mayorista')">Mayorista</button>
+      </div>
+      <span class="mode-info" id="mode-info">Precio al público · por unidad</span>
+    </div>
+
+    <!-- Catálogo -->
+    <div class="section-label">Colección</div>
+
+    <div class="filters" id="filters"></div>
+    <div class="products-grid" id="products-grid"></div>
+
+    <!-- Carrito -->
+    <div class="section-label">Tu selección</div>
+    <div class="cart-box">
+      <div id="cart-empty" class="cart-empty">— Ninguna fragancia seleccionada —</div>
+      <div id="cart-items"></div>
+      <div id="cart-total" style="display:none" class="cart-total">
+        <span class="cart-total-label">Total estimado</span>
+        <span class="cart-total-price" id="total-price">$ 0</span>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="section-label">Datos del pedido</div>
+    <div class="form-box">
+
+      <div class="emailjs-config">
+        <strong>⚙ Configuración EmailJS — completá estos campos para activar el envío de emails</strong>
+        Creá tu cuenta gratis en <a href="https://emailjs.com" target="_blank">emailjs.com</a>, configurá un Service y un Template, y pegá los datos acá.
+        <div class="ejs-grid">
+          <div><label>Service ID</label><input class="ejs-input" id="ejs-service" placeholder="service_xxxxxx"></div>
+          <div><label>Template ID</label><input class="ejs-input" id="ejs-template" placeholder="template_xxxxxx"></div>
+          <div><label>Public Key</label><input class="ejs-input" id="ejs-key" placeholder="xxxxxxxxxxxx"></div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nombre completo *</label>
+          <input type="text" id="f-nombre" placeholder="María García">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono / WhatsApp *</label>
+          <input type="text" id="f-tel" placeholder="+54 9 11 xxxx xxxx">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Email *</label>
+          <input type="email" id="f-email" placeholder="maria@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Provincia</label>
+          <select id="f-prov">
+            <option value="">— Seleccioná —</option>
+            <option>Buenos Aires</option><option>CABA</option><option>Córdoba</option>
+            <option>Santa Fe</option><option>Mendoza</option><option>Tucumán</option>
+            <option>Entre Ríos</option><option>Salta</option><option>Misiones</option>
+            <option>Chaco</option><option>Corrientes</option><option>Jujuy</option>
+            <option>Río Negro</option><option>Neuquén</option><option>Formosa</option>
+            <option>San Juan</option><option>Chubut</option><option>San Luis</option>
+            <option>Santiago del Estero</option><option>La Rioja</option>
+            <option>Catamarca</option><option>La Pampa</option>
+            <option>Santa Cruz</option><option>Tierra del Fuego</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ciudad</label>
+          <input type="text" id="f-ciudad" placeholder="Buenos Aires">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Dirección de entrega</label>
+          <input type="text" id="f-dir" placeholder="Calle, número, piso/depto">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notas adicionales</label>
+          <textarea id="f-notas" placeholder="Horario preferido, fragancia alternativa, consultas..."></textarea>
+        </div>
+      </div>
+
+      <button class="submit-btn" id="submit-btn" onclick="enviarPedido()">Enviar pedido</button>
+      <div class="status-msg status-ok" id="msg-ok">✦ Pedido enviado con éxito. Nos pondremos en contacto a la brevedad.</div>
+      <div class="status-msg status-err" id="msg-err">No se pudo enviar. Verificá los datos de EmailJS o intentá nuevamente.</div>
+    </div>
+
+  </main>
+
+  <footer>
+    © 2025 Le Parfumista · Fragancias selectas · Argentina
+  </footer>
+
+  <script>
+    // ── PRODUCTOS — editá este array con tus productos reales ──
+    const PRODUCTS = [
+      { id:1, icon:'🌹', family:'Floral',       name:'Rose Éternelle',  desc:'Agua de perfume · Rosa búlgara, jazmín, almizcle',     sizes:'50ml / 100ml', minorista:28500, mayorista:19500, minMayor:6 },
+      { id:2, icon:'🌿', family:'Fresco',        name:'Forêt Verte',     desc:'Eau de toilette · Bergamota, vetiver, cedro',           sizes:'75ml / 100ml', minorista:24000, mayorista:16200, minMayor:6 },
+      { id:3, icon:'🪵', family:'Oriental',      name:'Oud Mystique',    desc:'Extracto de perfume · Oud, ámbar, vainilla negra',      sizes:'30ml / 50ml',  minorista:42000, mayorista:29500, minMayor:4 },
+      { id:4, icon:'🍊', family:'Cítrico',       name:"Soleil d'Été",    desc:'Eau de toilette · Naranja, neroli, musgo blanco',       sizes:'100ml',        minorista:19500, mayorista:13000, minMayor:8 },
+      { id:5, icon:'🌸', family:'Gourmand',      name:'Caramel Doux',    desc:'Eau de parfum · Caramelo, vainilla, sándalo',           sizes:'50ml / 100ml', minorista:26500, mayorista:17800, minMayor:6 },
+      { id:6, icon:'🌊', family:'Acuático',      name:'Bleu Marin',      desc:'Eau de toilette · Marino, algas, bergamota',            sizes:'75ml / 100ml', minorista:22000, mayorista:14800, minMayor:8 },
+      { id:7, icon:'🖤', family:'Amaderado',     name:'Noir Absolu',     desc:'Extracto de perfume · Pachulí, incienso, cuero',        sizes:'30ml / 50ml',  minorista:39000, mayorista:26800, minMayor:4 },
+      { id:8, icon:'🌺', family:'Floral frutal', name:'Petite Pivoine',  desc:'Eau de parfum · Peonía, frambuesa, almizcle',           sizes:'50ml / 100ml', minorista:25500, mayorista:17000, minMayor:6 },
+    ];
+
+    // ── TU EMAIL — cambiá esto por tu dirección real ──
+    const CONTACT_EMAIL = 'tupedido@leparfumista.com';
+
+    let mode = 'minorista';
+    let cart = {};
+    let activeFilter = 'Todos';
+
+    function fmt(n) {
+      return '$ ' + Math.round(n).toLocaleString('es-AR');
+    }
+
+    function setMode(m) {
+      mode = m;
+      document.getElementById('btn-minorista').classList.toggle('active', m === 'minorista');
+      document.getElementById('btn-mayorista').classList.toggle('active', m === 'mayorista');
+      document.getElementById('mode-info').textContent = m === 'mayorista'
+        ? 'Precio mayorista · mínimos por cantidad'
+        : 'Precio al público · por unidad';
+      renderProducts();
+      renderCart();
+    }
+
+    function renderFilters() {
+      const families = ['Todos', ...new Set(PRODUCTS.map(p => p.family))];
+      document.getElementById('filters').innerHTML = families.map(f =>
+        `<button class="filter-btn${f === activeFilter ? ' active' : ''}" onclick="setFilter('${f}')">${f}</button>`
+      ).join('');
+    }
+
+    function setFilter(f) {
+      activeFilter = f;
+      renderFilters();
+      renderProducts();
+    }
+
+    function renderProducts() {
+      document.getElementById('products-grid').innerHTML = PRODUCTS.map(p => {
+        const price = mode === 'mayorista' ? p.mayorista : p.minorista;
+        const other = mode === 'mayorista' ? p.minorista : p.mayorista;
+        const inCart = cart[p.id];
+        const hidden = activeFilter !== 'Todos' && p.family !== activeFilter ? ' hidden' : '';
+        return `<div class="product-card${inCart ? ' selected' : ''}${hidden}" id="card-${p.id}">
+          ${mode === 'mayorista' ? `<div class="min-badge">mín. ×${p.minMayor}</div>` : ''}
+          <span class="product-icon">${p.icon}</span>
+          <div class="product-family">${p.family}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-desc">${p.desc}</div>
+          <div class="product-size">${p.sizes}</div>
+          <div class="product-price">${fmt(price)}</div>
+          <div class="product-price-ref">${fmt(other)}</div>
+          <button class="add-btn${inCart ? ' added' : ''}" onclick="toggleCart(${p.id})">
+            ${inCart ? '✓ Seleccionado' : '+ Seleccionar'}
+          </button>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleCart(id) {
+      if (cart[id]) { delete cart[id]; } else { cart[id] = 1; }
+      renderProducts();
+      renderCart();
+    }
+
+    function changeQty(id, d) {
+      if (!cart[id]) return;
+      cart[id] = Math.max(1, cart[id] + d);
+      renderCart();
+    }
+
+    function removeItem(id) {
+      delete cart[id];
+      renderProducts();
+      renderCart();
+    }
+
+    function renderCart() {
+      const keys = Object.keys(cart);
+      const empty = document.getElementById('cart-empty');
+      const itemsEl = document.getElementById('cart-items');
+      const totalEl = document.getElementById('cart-total');
+
+      if (!keys.length) {
+        empty.style.display = 'block';
+        itemsEl.innerHTML = '';
+        totalEl.style.display = 'none';
+        return;
+      }
+      empty.style.display = 'none';
+      totalEl.style.display = 'flex';
+
+      let total = 0;
+      itemsEl.innerHTML = keys.map(id => {
+        const p = PRODUCTS.find(x => x.id == id);
+        const price = mode === 'mayorista' ? p.mayorista : p.minorista;
+        const sub = price * cart[id];
+        total += sub;
+        return `<div class="cart-item">
+          <span class="cart-item-name">${p.icon} ${p.name}</span>
+          <div class="cart-qty">
+            <button class="qty-btn" onclick="changeQty(${id},-1)">−</button>
+            <span class="qty-num">${cart[id]}</span>
+            <button class="qty-btn" onclick="changeQty(${id},1)">+</button>
+          </div>
+          <span class="cart-item-price">${fmt(sub)}</span>
+          <button class="remove-btn" onclick="removeItem(${id})">✕</button>
+        </div>`;
+      }).join('');
+      document.getElementById('total-price').textContent = fmt(total);
+    }
+
+    async function enviarPedido() {
+      const nombre = document.getElementById('f-nombre').value.trim();
+      const tel    = document.getElementById('f-tel').value.trim();
+      const email  = document.getElementById('f-email').value.trim();
+      const prov   = document.getElementById('f-prov').value;
+      const ciudad = document.getElementById('f-ciudad').value.trim();
+      const dir    = document.getElementById('f-dir').value.trim();
+      const notas  = document.getElementById('f-notas').value.trim();
+
+      const serviceId  = document.getElementById('ejs-service').value.trim();
+      const templateId = document.getElementById('ejs-template').value.trim();
+      const publicKey  = document.getElementById('ejs-key').value.trim();
+
+      if (!nombre || !tel || !email) { alert('Completá nombre, teléfono y email.'); return; }
+      if (!Object.keys(cart).length) { alert('Seleccioná al menos una fragancia.'); return; }
+
+      const modeLabel = mode === 'mayorista' ? 'MAYORISTA' : 'Minorista';
+      let total = 0;
+      const items = Object.keys(cart).map(id => {
+        const p = PRODUCTS.find(x => x.id == id);
+        const price = mode === 'mayorista' ? p.mayorista : p.minorista;
+        const sub = price * cart[id];
+        total += sub;
+        return `${p.name} (${p.family}) × ${cart[id]} — ${fmt(sub)}`;
+      }).join('\n');
+
+      const ubicacion = [ciudad, prov].filter(Boolean).join(', ');
+      const pedidoTexto = [
+        `NUEVO PEDIDO ${modeLabel}`,
+        ``,
+        `Cliente: ${nombre}`,
+        `Teléfono: ${tel}`,
+        `Email: ${email}`,
+        ubicacion ? `Ubicación: ${ubicacion}` : '',
+        dir ? `Dirección: ${dir}` : '',
+        ``,
+        `FRAGANCIAS:`,
+        items,
+        ``,
+        `TOTAL: ${fmt(total)}`,
+        notas ? `\nNotas: ${notas}` : '',
+      ].filter(l => l !== '').join('\n');
+
+      const btn = document.getElementById('submit-btn');
+      document.getElementById('msg-ok').style.display = 'none';
+      document.getElementById('msg-err').style.display = 'none';
+
+      if (!serviceId || !templateId || !publicKey) {
+        // Fallback: abrir cliente de email
+        const subj = encodeURIComponent(`Pedido Le Parfumista ${modeLabel} — ${nombre}`);
+        const body = encodeURIComponent(pedidoTexto);
+        window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subj}&body=${body}`;
+        document.getElementById('msg-ok').style.display = 'block';
+        btn.disabled = true;
+        btn.textContent = '✦ Pedido enviado';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+
+      try {
+        emailjs.init(publicKey);
+        await emailjs.send(serviceId, templateId, {
+          from_name:   nombre,
+          from_email:  email,
+          phone:       tel,
+          location:    ubicacion || '—',
+          address:     dir || '—',
+          mode:        modeLabel,
+          order_items: items,
+          order_total: fmt(total),
+          notes:       notas || '—',
+          reply_to:    email,
+        });
+        document.getElementById('msg-ok').style.display = 'block';
+        btn.textContent = '✦ Pedido enviado';
+      } catch(e) {
+        console.error(e);
+        document.getElementById('msg-err').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Reintentar';
+      }
+    }
+
+    // Init
+    renderFilters();
+    renderProducts();
+    renderCart();
+  </script>
+
+</body>
+</html>
